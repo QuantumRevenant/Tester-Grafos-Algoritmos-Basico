@@ -1,4 +1,5 @@
 #include "menuMaker.h"
+#include "runShortestPath.h"
 #include "../model/Grafo.h"
 #include "../model/Timer.h"
 #include "../model/ShortestPath.h"
@@ -10,7 +11,7 @@
 using namespace std;
 
 /*
-
+Menu Principal del programa!
 */
 
 #define CARPETAEXPORT "../data/export/"
@@ -23,7 +24,7 @@ int main()
     bool grafoExist = false;
     do
     {
-        opt=-1;
+        opt = -1;
         string x = grafoExist ? "Existe" : "No Existe";
         opt = menuMaker::createOptionMenu({"Crear Grafo", "Consultar Grafo", "Evaluar Camino mas Rapido", "Importar Grafo", "Exportar Grafo"}, "Menu Principal\t-Grafo: " + x);
         Grafo tempGrafo;
@@ -39,7 +40,7 @@ int main()
             {
                 tempGrafo = Grafo::crearGrafo();
                 system("cls");
-                cout<<"Grafo ingresado:"<<endl;
+                cout << "Grafo ingresado:" << endl;
                 tempGrafo.printG(false);
                 if (menuMaker::createYesNoQuestion("Desea guardar ese grafo?, si ya existe uno en la memoria este lo reemplazara (es irreversible)"))
                 {
@@ -52,13 +53,14 @@ int main()
             break;
 
         case 1:
-            if(grafoExist)
+            if (grafoExist)
                 grafo.printG(true);
             system("pause");
             break;
 
         case 2:
-            // Escoger el subPrograma
+            if (grafoExist)
+                runShortestPath(grafo);
             system("pause");
             break;
 
@@ -74,9 +76,9 @@ int main()
                      << "~/[Ruta al WORKSPACE]" + x + "." << endl;
                 cout << "[!]\tRecuerda que si pones el nombre de un archivo con formato invalido el programa puede fallar." << endl
                      << endl;
-                bool yaExiste=grafoExist;
-                grafoExist=grafo.importG(CARPETAIMPORT + menuMaker::createInputField("Introduce el nombre del archivo de destino") + ".txt");
-                grafoExist=yaExiste?true:grafoExist;
+                bool yaExiste = grafoExist;
+                grafoExist = grafo.importG(CARPETAIMPORT + menuMaker::createInputField("Introduce el nombre del archivo de destino") + ".txt");
+                grafoExist = yaExiste ? true : grafoExist;
             }
             system("pause");
             break;
@@ -104,25 +106,6 @@ int main()
             break;
         }
     } while (opt != -1);
-    // Grafo g;
-    // Timer timer;
-    // timer.saveStart();
-
-    // // g=Grafo::crearGrafo();
-    // // g.exportG(CARPETAEXPORT"export.txt");
-    // g.importG(CARPETAEXPORT"export.txt");
-    // g.exportG(CARPETAEXPORT"exportimp.txt");
-
-    // Timer::printTime(timer.getElapsedSecondsNow());
-
-    // int origen=0;
-    // int destino=5;
-
-    // Camino result = ShortestPath::dijkstra(g, origen, destino);
-
-    // ShortestPath::printResultado(result,origen,destino);
-
-    // system("pause");
 
     return 0;
 }

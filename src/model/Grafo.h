@@ -23,6 +23,7 @@ public:
     Grafo();
     Grafo(int vectores, vector<vector<Arista>> listaAdyacencias);
     static Grafo crearGrafo();
+    static pair<int, int> introducirOrigenDestinoSPP(Grafo g);
     bool exportG(const string &nombreArchivo) const;
     void printG(bool cls);
     bool importG(const string &nombreArchivo);
@@ -80,7 +81,7 @@ Grafo Grafo::crearGrafo()
 
     cout << "Ingrese el numero de vertices: ";
     int value = General::inputInteger();
-    if (value <= -1)
+    if (value <= 0)
     {
         Grafo error;
         error.setEmptyDefault();
@@ -146,21 +147,12 @@ Grafo Grafo::crearGrafo()
             string endpart;
             isPesado ? endpart = " (peso: " + to_string(peso) + ")\n" : endpart = "\n";
 
-            if (isDirigido && origen!=destino)
+            if (isDirigido && origen != destino)
                 cout << ">Se añadio la arista V" + to_string(origen) + "->V" + to_string(destino) + endpart;
             else
             {
                 g.listaAdy[destino].push_back({origen, peso}); // Para grafos no dirigidos
                 cout << ">Se añadio la arista V" + to_string(origen) + "<->V" + to_string(destino) + endpart;
-
-                // Otras opciones:
-                /*
-                1)
-                cout << ">Se añadio la arista V" + to_string(origen) + "-V" + to_string(destino) + endpart;
-                2)
-                cout << ">Se añadio la arista V" + to_string(origen) + "->V" + to_string(destino) + endpart;
-                cout << ">Se añadio la arista V" + to_string(destino) + "->V" + to_string(origen) + endpart;
-                */
             }
         }
         else
@@ -171,6 +163,36 @@ Grafo Grafo::crearGrafo()
     } while (menuMaker::createYesNoQuestion("Desea agregar otra arista?"));
 
     return g;
+}
+
+pair<int, int> Grafo::introducirOrigenDestinoSPP(Grafo g)
+{
+    int origen, destino;
+    int value;
+    do
+    {
+        cout << ("Ingrese la arista de origen: ");
+        value = General::inputInteger();
+        if (value <= -1 || value >= g.getV())
+            cout << "Se introdujo un valor inválido vuelve a introducir" << endl;
+        else
+            origen = value;
+    } while (value <= -1 || value >= g.getV());
+
+    do
+    {
+        cout << ("Ingrese la arista de destino: ");
+        value = General::inputInteger();
+        if (value <= -1 || value >= g.getV())
+            cout << "Se introdujo un valor inválido vuelve a introducir" << endl;
+        else
+            destino = value;
+    } while (value <= -1 || value >= g.getV());
+
+    // pair<int,int> output;
+    // output.first=origen;
+    // output.second=destino;
+    return {origen,destino};
 }
 
 bool Grafo::exportG(const string &nombreArchivo) const
