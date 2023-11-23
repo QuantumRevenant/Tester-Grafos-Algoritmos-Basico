@@ -23,6 +23,7 @@ int main()
     bool grafoExist = false;
     do
     {
+        opt=-1;
         string x = grafoExist ? "Existe" : "No Existe";
         opt = menuMaker::createOptionMenu({"Crear Grafo", "Consultar Grafo", "Evaluar Camino mas Rapido", "Importar Grafo", "Exportar Grafo"}, "Menu Principal\t-Grafo: " + x);
         Grafo tempGrafo;
@@ -73,8 +74,9 @@ int main()
                      << "~/[Ruta al WORKSPACE]" + x + "." << endl;
                 cout << "[!]\tRecuerda que si pones el nombre de un archivo con formato invalido el programa puede fallar." << endl
                      << endl;
-                grafo.importG(CARPETAIMPORT + menuMaker::createInputField("Introduce el nombre del archivo de destino") + ".txt");
-                grafoExist = true;
+                bool yaExiste=grafoExist;
+                grafoExist=grafo.importG(CARPETAIMPORT + menuMaker::createInputField("Introduce el nombre del archivo de destino") + ".txt");
+                grafoExist=yaExiste?true:grafoExist;
             }
             system("pause");
             break;

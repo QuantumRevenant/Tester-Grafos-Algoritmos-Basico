@@ -7,6 +7,7 @@
 #include <sstream>
 #include <string>
 #include "../view/menuMaker.h"
+#include "General.h"
 
 using namespace std;
 
@@ -22,10 +23,11 @@ public:
     Grafo();
     Grafo(int vectores, vector<vector<Arista>> listaAdyacencias);
     static Grafo crearGrafo();
-    void exportG(const string &nombreArchivo) const;
+    bool exportG(const string &nombreArchivo) const;
     void printG(bool cls);
-    void importG(const string &nombreArchivo);
+    bool importG(const string &nombreArchivo);
 
+    void setEmptyDefault();
     int getV() { return V; };
     vector<vector<Arista>> getlistaAdy() { return listaAdy; };
 
@@ -47,47 +49,91 @@ Grafo::Grafo(int vectores, vector<vector<Arista>> listaAdyacencias)
     listaAdy = listaAdyacencias;
 }
 
+void Grafo::setEmptyDefault()
+{
+    Arista a;
+    a.peso = 1;
+    a.destino = 1;
+    vector<Arista> vc;
+    vc.push_back(a);
+
+    listaAdy.clear();
+    listaAdy.push_back(vc);
+
+    vc.clear();
+    a.destino = 0;
+    vc.push_back(a);
+    listaAdy.push_back(vc);
+
+    V = 2;
+}
+
 Grafo Grafo::crearGrafo()
 {
     Grafo g;
-    char opt;
     bool isDirigido;
     bool isPesado;
 
-    cout << "El grafo es Dirigido? (s/n): ";
-    cin >> opt;
+    isDirigido = menuMaker::createYesNoQuestion("El grafo es Dirigido?");
 
-    isDirigido = (opt == 's' || opt == 'S');
-    isDirigido ? cout << ">El grafo SI es dirigido\n" : cout << ">El grafo NO es dirigido\n";
-
-    cout << "El grafo tiene pesos? (s/n): ";
-    cin >> opt;
-
-    isPesado = (opt == 's' || opt == 'S');
-    isPesado ? cout << ">El grafo SI es pesado\n" : cout << ">El grafo NO es pesado\n";
+    isPesado = menuMaker::createYesNoQuestion("El grafo tiene Pesos?");
 
     cout << "Ingrese el numero de vertices: ";
-    cin >> g.V;
+    int value = General::inputInteger();
+    if (value <= -1)
+    {
+        Grafo error;
+        error.setEmptyDefault();
+        cout << "Se introdujo un valor inválido, se cancela la creación" << endl;
+        return error;
+    }
+    else
+        g.V = value;
 
     // Inicializar la lista de adyacencia con pesos
     g.listaAdy.resize(g.V);
 
     // Permitir al usuario ingresar las aristaes y pesos entre vertices
     int origen, destino, peso;
-    char continuar;
     int contador = 0;
     cout << "Recuerde que los vertices se comienzan a nombrar enumerando desde 0!\n";
     do
     {
         contador++;
         cout << ("Ingrese la arista #" + to_string(contador) + " (origen): ");
-        cin >> origen;
+
+        int value = General::inputInteger();
+        if (value <= -1 || value >= g.getV())
+        {
+            Grafo error;
+            error.setEmptyDefault();
+            cout << "Se introdujo un valor inválido, se cancela la creación" << endl;
+            system("pause");
+            return error;
+        }
+        else
+            origen = value;
+
         cout << ("Ingrese la arista #" + to_string(contador) + " (destino): ");
-        cin >> destino;
-        if (isPesado)
+
+        value = General::inputInteger();
+        if (value <= -1)
+        {
+            Grafo error;
+            error.setEmptyDefault();
+            cout << "Se introdujo un valor inválido, se cancela la creación" << endl;
+            system("pause");
+            return error;
+        }
+        else
+            destino = value;
+
+        if (isPesado || value >= g.getV())
         {
             cout << ("Ingrese la arista #" + to_string(contador) + " (peso): ");
-            cin >> peso;
+
+            value = General::inputInteger();
+            peso = value;
         }
         else
             peso = 1;
@@ -100,7 +146,7 @@ Grafo Grafo::crearGrafo()
             string endpart;
             isPesado ? endpart = " (peso: " + to_string(peso) + ")\n" : endpart = "\n";
 
-            if (isDirigido)
+            if (isDirigido && origen!=destino)
                 cout << ">Se añadio la arista V" + to_string(origen) + "->V" + to_string(destino) + endpart;
             else
             {
@@ -122,15 +168,12 @@ Grafo Grafo::crearGrafo()
             cout << "Vertices no validos. Intentelo de nuevo.\n";
         }
 
-        cout << "Desea agregar otra arista? (s/n): ";
-        cin >> continuar;
-
-    } while (continuar == 's' || continuar == 'S');
+    } while (menuMaker::createYesNoQuestion("Desea agregar otra arista?"));
 
     return g;
 }
 
-void Grafo::exportG(const string &nombreArchivo) const
+bool Grafo::exportG(const string &nombreArchivo) const
 {
     ofstream archivo(nombreArchivo);
 
@@ -143,24 +186,23 @@ void Grafo::exportG(const string &nombreArchivo) const
             archivo << i << ": ";
             for (const Arista &arista : listaAdy[i])
             {
-                archivo << arista.destino << "-" << arista.peso << " ";
+                archivo << arista.destino << "p" << arista.peso << " ";
             }
             archivo << "\n";
         }
 
         archivo.close();
         cout << "Grafo con pesos exportado exitosamente.\n";
+        return true;
     }
-    else
-    {
-        cout << "No se pudo abrir el archivo para exportar el grafo con pesos.\n";
-    }
+    cout << "No se pudo abrir el archivo para exportar el grafo con pesos.\n";
+    return false;
 }
 
 void Grafo::printG(bool cls)
 {
-    cout<<endl;
-    if(cls)
+    cout << endl;
+    if (cls)
         system("cls");
     menuMaker::createSeparator("#");
     cout << endl;
@@ -180,8 +222,10 @@ void Grafo::printG(bool cls)
     menuMaker::createSeparator("#");
 }
 
-void Grafo::importG(const string &nombreArchivo)
+bool Grafo::importG(const string &nombreArchivo)
 {
+    V = 0;
+    listaAdy.clear();
     ifstream archivo(nombreArchivo);
 
     if (archivo.is_open())
@@ -210,11 +254,10 @@ void Grafo::importG(const string &nombreArchivo)
 
         archivo.close();
         cout << "Grafo con pesos importado exitosamente.\n";
+        return true;
     }
-    else
-    {
-        cout << "No se pudo abrir el archivo para importar el grafo con pesos.\n";
-    }
+    cout << "No se pudo abrir el archivo para importar el grafo con pesos.\n";
+    return false;
 }
 
 #endif // CLASS_H
