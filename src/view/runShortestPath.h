@@ -34,9 +34,11 @@ void runShortestPath(Grafo grafo)
             nodos = Grafo::introducirOrigenDestinoSPP(grafo);
             cout << nodos.first << "-" << nodos.second << endl;
             timer.saveStart();
+            cout<<endl<<"Dijkstra"<<endl;
             ShortestPath::printResultado(ShortestPath::dijkstra(grafo, nodos.first, nodos.second), nodos.first, nodos.second);
             Timer::printTime(timer.getElapsedSecondsNow());
             timer.saveStart();
+            cout<<endl<<"Bellmand-Ford"<<endl;
             ShortestPath::printResultado(ShortestPath::bellmanFord(grafo, nodos.first, nodos.second), nodos.first, nodos.second);
             Timer::printTime(timer.getElapsedSecondsNow());
             system("pause");
@@ -44,6 +46,7 @@ void runShortestPath(Grafo grafo)
         case 1:
             nodos = Grafo::introducirOrigenDestinoSPP(grafo);
             timer.saveStart();
+            cout<<endl<<"Dijkstra"<<endl;
             ShortestPath::dijkstra(grafo, nodos.first, nodos.second);
             Timer::printTime(timer.getElapsedSecondsNow());
             system("pause");
@@ -51,6 +54,7 @@ void runShortestPath(Grafo grafo)
         case 2:
             nodos = Grafo::introducirOrigenDestinoSPP(grafo);
             timer.saveStart();
+            cout<<endl<<"Bellmand-Ford"<<endl;
             ShortestPath::bellmanFord(grafo, nodos.first, nodos.second);
             Timer::printTime(timer.getElapsedSecondsNow());
             system("pause");
